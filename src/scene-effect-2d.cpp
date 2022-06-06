@@ -50,98 +50,112 @@ SceneEffect2D::~SceneEffect2D()
 {
 }
 
-/*
- * Calculates the offset of the coefficient with index i
- * from the center of the kernel matrix. Note that we are
- * using the standard OpenGL texture coordinate system
- * (x grows rightwards, y grows upwards).
- */
-static LibMatrix::vec2
-calc_offset(unsigned int i, unsigned int width, unsigned int height)
-{
-    int x = i % width - (width - 1) / 2;
-    int y = -(i / width - (height - 1) / 2);
+// /*
+//  * Calculates the offset of the coefficient with index i
+//  * from the center of the kernel matrix. Note that we are
+//  * using the standard OpenGL texture coordinate system
+//  * (x grows rightwards, y grows upwards).
+//  */
+// static LibMatrix::vec2
+// calc_offset(unsigned int i, unsigned int width, unsigned int height)
+// {
+//     int x = i % width - (width - 1) / 2;
+//     int y = -(i / width - (height - 1) / 2);
 
-    return LibMatrix::vec2(static_cast<float>(x),
-                           static_cast<float>(y));
+//     return LibMatrix::vec2(static_cast<float>(x),
+//                            static_cast<float>(y));
 
-}
+// }
+
+// /**
+//  * Creates a fragment shader implementing 2D image convolution.
+//  *
+//  * In the mathematical definition of 2D convolution, the kernel/filter (2D
+//  * impulse response) is essentially mirrored in both directions (that is,
+//  * rotated 180 degrees) when being applied on a 2D block of data (eg pixels).
+//  *
+//  * Most image manipulation programs, however, use the term kernel/filter to
+//  * describe a 180 degree rotation of the 2D impulse response. This is more
+//  * intuitive from a human understanding perspective because this rotated matrix
+//  * can be regarded as a stencil that can be directly applied by just "placing"
+//  * it on the image.
+//  *
+//  * In order to be compatible with image manipulation programs, we will
+//  * use the same definition of kernel/filter (180 degree rotation of impulse
+//  * response). This also means that we don't need to perform the (implicit)
+//  * rotation of the kernel in our convolution implementation.
+//  *
+//  * @param canvas the destination Canvas for this shader
+//  * @param array the array holding the filter coefficients in row-major
+//  *              order
+//  * @param width the width of the filter
+//  * @param width the height of the filter
+//  *
+//  * @return a string containing the frament source code
+//  */
+// static std::string
+// create_convolution_fragment_shader(Canvas &canvas, std::vector<float> &array,
+//                                    unsigned int width, unsigned int height)
+// {
+//     static const std::string frg_shader_filename(Options::data_path + "/shaders/effect-2d-convolution.frag");
+//     ShaderSource source(frg_shader_filename);
+
+//     if (width * height != array.size()) {
+//         Log::error("Convolution filter size doesn't match supplied dimensions\n");
+//         return "";
+//     }
+
+//     /* Steps are needed to be able to access nearby pixels */
+//     source.add_const("TextureStepX", 1.0f/canvas.width());
+//     source.add_const("TextureStepY", 1.0f/canvas.height());
+
+//     std::stringstream ss_def;
+//     std::stringstream ss_convolution;
+
+//     /* Set up stringstream floating point options */
+//     ss_def << std::fixed;
+//     ss_convolution.precision(1);
+//     ss_convolution << std::fixed;
+
+//     ss_convolution << "result = ";
+
+//     for(std::vector<float>::const_iterator iter = array.begin();
+//         iter != array.end();
+//         iter++)
+//     {
+//         unsigned int i = iter - array.begin();
+
+//         /* Add Filter coefficient const definitions */
+//         ss_def << "const float Kernel" << i << " = "
+//                << *iter << ";" << std::endl;
+
+//         /* Add convolution term using the current filter coefficient */
+//         LibMatrix::vec2 offset(calc_offset(i, width, height));
+//         ss_convolution << "texture2D(Texture0, TextureCoord + vec2("
+//                        << offset.x() << " * TextureStepX, "
+//                        << offset.y() << " * TextureStepY)) * Kernel" << i;
+//         if (iter + 1 != array.end())
+//             ss_convolution << " +" << std::endl;
+//     }
+
+//     ss_convolution << ";" << std::endl;
+
+//     source.add(ss_def.str());
+//     source.replace("$CONVOLUTION$", ss_convolution.str());
+
+//     return source.str();
+// }
 
 /**
- * Creates a fragment shader implementing 2D image convolution.
- *
- * In the mathematical definition of 2D convolution, the kernel/filter (2D
- * impulse response) is essentially mirrored in both directions (that is,
- * rotated 180 degrees) when being applied on a 2D block of data (eg pixels).
- *
- * Most image manipulation programs, however, use the term kernel/filter to
- * describe a 180 degree rotation of the 2D impulse response. This is more
- * intuitive from a human understanding perspective because this rotated matrix
- * can be regarded as a stencil that can be directly applied by just "placing"
- * it on the image.
- *
- * In order to be compatible with image manipulation programs, we will
- * use the same definition of kernel/filter (180 degree rotation of impulse
- * response). This also means that we don't need to perform the (implicit)
- * rotation of the kernel in our convolution implementation.
- *
- * @param canvas the destination Canvas for this shader
- * @param array the array holding the filter coefficients in row-major
- *              order
- * @param width the width of the filter
- * @param width the height of the filter
+ * Creates a chroma-key shader implementing chroma key filter.
  *
  * @return a string containing the frament source code
  */
 static std::string
-create_convolution_fragment_shader(Canvas &canvas, std::vector<float> &array,
-                                   unsigned int width, unsigned int height)
+create_chroma_key_shader()
 {
-    static const std::string frg_shader_filename(Options::data_path + "/shaders/effect-2d-convolution.frag");
+    static const std::string frg_shader_filename(Options::data_path + "/shaders/effect-2d-chroma-key.frag");
     ShaderSource source(frg_shader_filename);
-
-    if (width * height != array.size()) {
-        Log::error("Convolution filter size doesn't match supplied dimensions\n");
-        return "";
-    }
-
-    /* Steps are needed to be able to access nearby pixels */
-    source.add_const("TextureStepX", 1.0f/canvas.width());
-    source.add_const("TextureStepY", 1.0f/canvas.height());
-
-    std::stringstream ss_def;
-    std::stringstream ss_convolution;
-
-    /* Set up stringstream floating point options */
-    ss_def << std::fixed;
-    ss_convolution.precision(1);
-    ss_convolution << std::fixed;
-
-    ss_convolution << "result = ";
-
-    for(std::vector<float>::const_iterator iter = array.begin();
-        iter != array.end();
-        iter++)
-    {
-        unsigned int i = iter - array.begin();
-
-        /* Add Filter coefficient const definitions */
-        ss_def << "const float Kernel" << i << " = "
-               << *iter << ";" << std::endl;
-
-        /* Add convolution term using the current filter coefficient */
-        LibMatrix::vec2 offset(calc_offset(i, width, height));
-        ss_convolution << "texture2D(Texture0, TextureCoord + vec2("
-                       << offset.x() << " * TextureStepX, "
-                       << offset.y() << " * TextureStepY)) * Kernel" << i;
-        if (iter + 1 != array.end())
-            ss_convolution << " +" << std::endl;
-    }
-
-    ss_convolution << ";" << std::endl;
-
-    source.add(ss_def.str());
-    source.replace("$CONVOLUTION$", ss_convolution.str());
 
     return source.str();
 }
@@ -327,9 +341,10 @@ SceneEffect2D::setup()
     /* Create and load the shaders */
     ShaderSource vtx_source(vtx_shader_filename);
     ShaderSource frg_source;
-    frg_source.append(create_convolution_fragment_shader(canvas_, kernel,
-                                                         kernel_width,
-                                                         kernel_height));
+    // frg_source.append(create_convolution_fragment_shader(canvas_, kernel,
+    //                                                      kernel_width,
+    //                                                      kernel_height));
+    frg_source.append(create_chroma_key_shader());
 
     if (frg_source.str().empty())
         return false;

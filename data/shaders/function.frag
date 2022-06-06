@@ -12,5 +12,7 @@ void main(void)
 
 $MAIN$
 
+    // d = .5;
     gl_FragColor = vec4(d, d, d, 1.0);
+    // gl_FragColor = vec4(d, d*10., d*100., 1.0);
 }

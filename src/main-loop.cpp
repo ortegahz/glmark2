@@ -62,9 +62,12 @@ MainLoop::step()
 {
     /* Find the next normal scene */
     if (!scene_) {
+        Log::info("!scene_\n");
         /* Find a normal scene */
         while (bench_iter_ != benchmarks_.end()) {
             scene_ = &(*bench_iter_)->scene();
+
+            Log::info("scene_->name() --> %s\n", scene_->name().c_str());
 
             /* 
              * Scenes with empty names are option-setting scenes.
@@ -312,6 +315,7 @@ MainLoopValidation::draw()
 void
 MainLoopValidation::log_scene_result()
 {
+    Log::info("MainLoopValidation::log_scene_result()\n");
     static const std::string format(Log::continuation_prefix + " Validation: %s\n");
     std::string result;
 

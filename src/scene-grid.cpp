@@ -110,8 +110,8 @@ SceneGrid::draw()
     LibMatrix::Stack4 model_view;
     LibMatrix::mat4 model_view_proj(canvas_.projection());
 
-    model_view.translate(0.0f, 0.0f, -5.0f);
-    model_view.rotate(rotation_, 0.0f, 0.0f, 1.0f);
+    model_view.translate(5.0f, 0.0f, -5.0f);
+    model_view.rotate(rotation_, 0.0f, 1.0f, 1.0f);
     model_view_proj *= model_view.getCurrent();
 
     program_["ModelViewProjectionMatrix"] = model_view_proj;

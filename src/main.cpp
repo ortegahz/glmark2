@@ -115,6 +115,7 @@ do_benchmark(Canvas &canvas)
 
     benchmark_collection.populate_from_options();
     
+    Log::info("benchmark_collection.needs_decoration() --> %d\n", benchmark_collection.needs_decoration());
     if (benchmark_collection.needs_decoration())
         loop = new MainLoopDecoration(canvas, benchmark_collection.benchmarks());
     else
@@ -168,6 +169,7 @@ main(int argc, char *argv[])
 #if GLMARK2_USE_X11
     NativeStateX11 native_state;
 #elif GLMARK2_USE_DRM
+    Log::info("GLMARK2_USE_DRM\n");
     NativeStateDRM native_state;
 #elif GLMARK2_USE_MIR
     NativeStateMir native_state;
@@ -180,6 +182,7 @@ main(int argc, char *argv[])
 #endif
 
 #if GLMARK2_USE_EGL
+    Log::info("GLMARK2_USE_EGL\n");
     GLStateEGL gl_state;
 #elif GLMARK2_USE_GLX
     GLStateGLX gl_state;
@@ -187,6 +190,7 @@ main(int argc, char *argv[])
     GLStateWGL gl_state;
 #endif
 
+    Log::info("Options::size --> %dx%d\n", Options::size.first, Options::size.second);
     CanvasGeneric canvas(native_state, gl_state, Options::size.first, Options::size.second);
 
     canvas.offscreen(Options::offscreen);
@@ -208,7 +212,7 @@ main(int argc, char *argv[])
     }
 
     Log::info("=======================================================\n");
-    Log::info("    glmark2 %s\n", GLMARK_VERSION);
+    Log::info("  [manu]  glmark2 %s\n", GLMARK_VERSION);
     Log::info("=======================================================\n");
     canvas.print_info();
     Log::info("=======================================================\n");
@@ -216,9 +220,15 @@ main(int argc, char *argv[])
     canvas.visible(true);
 
     if (Options::validate)
+    {
+        Log::info("do_validation\n");
         do_validation(canvas);
+    }
     else
+    {
+        Log::info("do_benchmark\n");
         do_benchmark(canvas);
+    }
 
     return 0;
 }
