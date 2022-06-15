@@ -133,8 +133,8 @@ Scene::update()
 
     lastUpdateTime_ = current_time;
 
-    if (elapsed_time >= duration_)
-        running_ = false;
+    // if (elapsed_time >= duration_)
+    //     running_ = false;
 
     if (nframes_ > 0 && currentFrame_ >= nframes_)
         running_ = false;

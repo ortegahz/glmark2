@@ -34,6 +34,7 @@
 #include "model.h"
 #include "util.h"
 #include <cmath>
+#include <sstream>
 
 using LibMatrix::vec3;
 using std::string;
@@ -303,6 +304,14 @@ SceneTexture::draw()
     LibMatrix::mat4 normal_matrix(model_view.getCurrent());
     normal_matrix.inverse().transpose();
     program_["NormalMatrix"] = normal_matrix;
+
+    static unsigned int imgIdx = 0;
+    std::stringstream ss;
+    ss << "manu_" << imgIdx << std::endl;
+    std::string textureName;
+    ss >> textureName;
+    Texture::load(textureName.c_str(), &texture_, GL_NEAREST, GL_NEAREST, 0);
+    imgIdx = (imgIdx >= 631) ? 0 : imgIdx + 1;
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture_);

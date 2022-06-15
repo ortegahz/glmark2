@@ -3,3 +3,5 @@ waflib/**/*.pyc
 build/
 
 glmark2-out/
+
+data/textures/manu_*\.jpg

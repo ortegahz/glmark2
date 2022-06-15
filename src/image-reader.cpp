@@ -356,7 +356,7 @@ JPEGReader::pixelBytes() const
 bool
 JPEGReader::init(const std::string& filename)
 {
-    Log::debug("Reading JPEG file %s\n", filename.c_str());
+    // Log::debug("Reading JPEG file %s\n", filename.c_str());
 
     /* Initialize error manager */
     priv_->cinfo.err = reinterpret_cast<jpeg_error_mgr*>(&priv_->error_mgr);

@@ -12,7 +12,11 @@
             "args": [
                 "-b",
                 // "function"
-                "effect2d"
+                // "effect2d"
+                "texture",
+                "--data-path",
+                "/mnt_manu/glmark2/glmark2-out/usr/local/share/glmark2",
+                "--run-forever"
             ],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",

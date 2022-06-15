@@ -60,7 +60,7 @@ ImageData::load(ImageReader &reader)
 
     resize(reader.width(), reader.height(), reader.pixelBytes());
 
-    Log::debug("    Height: %d Width: %d Bpp: %d\n", width, height, bpp);
+    // Log::debug("    Height: %d Width: %d Bpp: %d\n", width, height, bpp);
 
     /* 
      * Copy the row data to the image buffer in reverse Y order, suitable
@@ -79,12 +79,17 @@ setup_texture(GLuint *tex, ImageData &image, GLint min_filter, GLint mag_filter)
 {
     GLenum format = image.bpp == 3 ? GL_RGB : GL_RGBA;
 
-    glGenTextures(1, tex);
-    glBindTexture(GL_TEXTURE_2D, *tex);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, min_filter);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, mag_filter);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    static bool bFirst = true;
+    if (bFirst)
+    {
+        glGenTextures(1, tex);
+        glBindTexture(GL_TEXTURE_2D, *tex);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, min_filter);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, mag_filter);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        bFirst = false;
+    }
     glTexImage2D(GL_TEXTURE_2D, 0, format, image.width, image.height, 0,
                  format, GL_UNSIGNED_BYTE, image.pixels);
 
@@ -133,7 +138,7 @@ Texture::load(const std::string &textureName, GLuint *pTexture, ...)
     while ((arg = va_arg(ap, GLint)) != 0) {
         GLint arg2 = va_arg(ap, GLint);
         setup_texture(pTexture, image, arg, arg2);
-        pTexture++;
+        // pTexture++;
     }
 
     va_end(ap);
