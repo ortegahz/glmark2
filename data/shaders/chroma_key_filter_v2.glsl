@@ -1,5 +1,8 @@
 // #iUniform vec4x4 ViewProj;
-#iChannel0 "file:///mnt_manu/glmark2/glmark2-out/usr/local/share/glmark2/textures/effect-2d.png"
+#iChannel0 "file:///home/manu/nfs/glmark2/data/textures/effect-2d.png"
+#iChannel1 "file:///media/manu/samsung/pics/green_screen.bmp"
+
+#iUniform float saturation = 5.0
 
 #iUniform vec4 cb_v4 = vec4(-0.100644, -0.338572,  0.439216, 0.501961)
 #iUniform vec4 cr_v4 = vec4(0.439216, -0.398942, -0.040274, 0.501961)
@@ -87,11 +90,46 @@ vec4 PSChromaKeyRGBA(vec4 rgba, vec2 uv)
 	return rgba;
 }
 
+vec4 PSColorFilterRGBA(vec4 rgba)
+{
+	const float red_weight = 0.299f;
+	const float green_weight = 0.587f;
+	const float blue_weight = 0.114f;
+
+	float one_minus_sat_red = (1.0f - saturation) * red_weight;
+	float one_minus_sat_green = (1.0f - saturation) * green_weight;
+	float one_minus_sat_blue = (1.0f - saturation) * blue_weight;
+	float sat_val_red = one_minus_sat_red + saturation;
+	float sat_val_green = one_minus_sat_green + saturation;
+	float sat_val_blue = one_minus_sat_blue + saturation;
+
+	mat4 color_matrix = mat4( sat_val_red, one_minus_sat_red, one_minus_sat_red, 0.0,  // a b c 0.0
+															one_minus_sat_green, sat_val_green, one_minus_sat_green, 0.0,  // d e f 0.0
+															one_minus_sat_blue, one_minus_sat_blue, sat_val_blue, 0.0,  // g h i 0.0
+															0.0, 0.0, 0.0, 1.0);
+
+	// mat4 color_matrix = mat4( sat_val_red, one_minus_sat_green, one_minus_sat_blue, 0.0,  // a d g 0.0
+	// 														one_minus_sat_red, sat_val_green, one_minus_sat_blue, 0.0,  // b e h 0.0
+	// 														one_minus_sat_red, one_minus_sat_green, sat_val_blue, 0.0,  // c f i 0.0
+	// 														0.0, 0.0, 0.0, 1.0);
+
+	rgba.rgb = max(vec3(0.0, 0.0, 0.0), rgba.rgb / rgba.a);
+	rgba = color_matrix * rgba;
+	rgba.rgb *= rgba.a;
+
+
+	return rgba;
+}
+
 void main() {
     vec2 uv_in = (gl_FragCoord.xy / iResolution.xy);
     vec4 rgba_in = texture(iChannel0, uv_in);
 
-	vec4 rgba_out  = PSChromaKeyRGBA(rgba_in, uv_in);
+	vec4 rgba_out = PSColorFilterRGBA(rgba_in);
 
-    gl_FragColor = rgba_out;
+	rgba_out  = PSChromaKeyRGBA(rgba_out, uv_in);
+
+	vec4 rgba_bg = texture(iChannel1, uv_in);
+
+    gl_FragColor = rgba_out + (1.0 - rgba_out.a) * rgba_bg;
 }

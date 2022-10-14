@@ -154,7 +154,7 @@ SceneEffect2D::~SceneEffect2D()
 static std::string
 create_chroma_key_shader()
 {
-    static const std::string frg_shader_filename(Options::data_path + "/shaders/effect-2d-chroma-key.frag");
+    static const std::string frg_shader_filename(Options::data_path + "/shaders/effect-2d-color-filter.frag");
     ShaderSource source(frg_shader_filename);
 
     return source.str();
