@@ -125,9 +125,9 @@ void main() {
     vec2 uv_in = (gl_FragCoord.xy / iResolution.xy);
     vec4 rgba_in = texture(iChannel0, uv_in);
 
-	vec4 rgba_out = PSColorFilterRGBA(rgba_in);
+	// rgba_in = PSColorFilterRGBA(rgba_in);
 
-	rgba_out  = PSChromaKeyRGBA(rgba_out, uv_in);
+	vec4 rgba_out  = PSChromaKeyRGBA(rgba_in, uv_in);
 
 	vec4 rgba_bg = texture(iChannel1, uv_in);
 
