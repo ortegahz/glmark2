@@ -1,8 +1,8 @@
 uniform sampler2D Texture0;
 varying vec2 TextureCoord;
 
-const float saturation = 6.0;
-const float saturation_inv = 0.5;
+const float stat = 1.0;  // 饱和度 [-1 5] stat = stat + 1.0
+const float statinv = 1.0;  // 逆饱和度 [-1 5] statinv = statinv + 1.0
 
 const float opa = 1.0;  // 透明度 [0 1]
 const float ctst = 1.0;  // 对比度 [-4 4] 	ctst = (ctst < 0.0) ? (1.0 / (-ctst + 1.0)) : (ctst + 1.0);
@@ -131,11 +131,11 @@ void main() {
 
 	rgba_in = texture2D(Texture0, TextureCoord);
 
-	rgba_in = SFilter(rgba_in, saturation);
+	rgba_in = SFilter(rgba_in, stat);
 
 	rgba_out  = ColorFilter(rgba_in, TextureCoord);
 
-	rgba_out = SFilter(rgba_out, saturation_inv);
+	rgba_out = SFilter(rgba_out, statinv);
 
 	gl_FragColor = rgba_out;
 }
