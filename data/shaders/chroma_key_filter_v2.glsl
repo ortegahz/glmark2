@@ -2,9 +2,9 @@
 #iChannel0 "file:///home/manu/nfs/glmark2/data/textures/effect-2d.bmp"
 #iChannel1 "file:///media/manu/samsung/pics/green_screen.bmp"
 
-#iUniform float saturation = 3.0
+#iUniform float saturation = 1.0
 
-#iUniform float saturation_inv = 0.8
+#iUniform float saturation_inv = 1.0
 
 #iUniform vec4 cb_v4 = vec4(-0.100644, -0.338572,  0.439216, 0.501961)
 #iUniform vec4 cr_v4 = vec4(0.439216, -0.398942, -0.040274, 0.501961)

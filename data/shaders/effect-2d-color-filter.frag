@@ -1,6 +1,9 @@
 uniform sampler2D Texture0;
 varying vec2 TextureCoord;
 
+const float saturation = 6.0;
+const float saturation_inv = 0.5;
+
 const float opa = 1.0;  // 透明度 [0 1]
 const float ctst = 1.0;  // 对比度 [-4 4] 	ctst = (ctst < 0.0) ? (1.0 / (-ctst + 1.0)) : (ctst + 1.0);
 const float brt = 0.0;  // 亮度 [-1 1]
@@ -97,13 +100,42 @@ vec4 ColorFilter(vec4 rgba, vec2 uv)
 	return rgba;
 }
 
+vec4 SFilter(vec4 rgba, float saturation)
+{
+	const float red_weight = 0.299;
+	const float green_weight = 0.587;
+	const float blue_weight = 0.114;
+
+	float one_minus_sat_red = (1.0 - saturation) * red_weight;
+	float one_minus_sat_green = (1.0 - saturation) * green_weight;
+	float one_minus_sat_blue = (1.0 - saturation) * blue_weight;
+	float sat_val_red = one_minus_sat_red + saturation;
+	float sat_val_green = one_minus_sat_green + saturation;
+	float sat_val_blue = one_minus_sat_blue + saturation;
+
+	mat4 color_matrix = mat4( sat_val_red, one_minus_sat_red, one_minus_sat_red, 0.0,  // a b c 0.0
+															one_minus_sat_green, sat_val_green, one_minus_sat_green, 0.0,  // d e f 0.0
+															one_minus_sat_blue, one_minus_sat_blue, sat_val_blue, 0.0,  // g h i 0.0
+															0.0, 0.0, 0.0, 1.0);
+
+	rgba.rgb = max(vec3(0.0, 0.0, 0.0), rgba.rgb / rgba.a);
+	rgba = color_matrix * rgba;
+	rgba.rgb *= rgba.a;
+
+	return rgba;
+}
+
 void main() {
 	vec4 rgba_in;
 	vec4 rgba_out;
 
 	rgba_in = texture2D(Texture0, TextureCoord);
+
+	rgba_in = SFilter(rgba_in, saturation);
+
 	rgba_out  = ColorFilter(rgba_in, TextureCoord);
-	// rgba_out = rgba_in;
+
+	rgba_out = SFilter(rgba_out, saturation_inv);
 
 	gl_FragColor = rgba_out;
 }
