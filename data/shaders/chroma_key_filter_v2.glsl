@@ -1,8 +1,10 @@
 // #iUniform vec4x4 ViewProj;
-#iChannel0 "file:///home/manu/nfs/glmark2/data/textures/effect-2d.png"
+#iChannel0 "file:///home/manu/nfs/glmark2/data/textures/effect-2d.bmp"
 #iChannel1 "file:///media/manu/samsung/pics/green_screen.bmp"
 
-#iUniform float saturation = 5.0
+#iUniform float saturation = 3.0
+
+#iUniform float saturation_inv = 0.8
 
 #iUniform vec4 cb_v4 = vec4(-0.100644, -0.338572,  0.439216, 0.501961)
 #iUniform vec4 cr_v4 = vec4(0.439216, -0.398942, -0.040274, 0.501961)
@@ -90,7 +92,7 @@ vec4 PSChromaKeyRGBA(vec4 rgba, vec2 uv)
 	return rgba;
 }
 
-vec4 PSColorFilterRGBA(vec4 rgba)
+vec4 PSColorFilterRGBA(vec4 rgba, float saturation)
 {
 	const float red_weight = 0.299f;
 	const float green_weight = 0.587f;
@@ -125,9 +127,11 @@ void main() {
     vec2 uv_in = (gl_FragCoord.xy / iResolution.xy);
     vec4 rgba_in = texture(iChannel0, uv_in);
 
-	// rgba_in = PSColorFilterRGBA(rgba_in);
+	rgba_in = PSColorFilterRGBA(rgba_in, saturation);
 
 	vec4 rgba_out  = PSChromaKeyRGBA(rgba_in, uv_in);
+
+	rgba_out = PSColorFilterRGBA(rgba_out, saturation_inv);
 
 	vec4 rgba_bg = texture(iChannel1, uv_in);
 
