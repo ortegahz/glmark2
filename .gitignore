@@ -5,3 +5,5 @@ build/
 glmark2-out/
 
 data/textures/manu_*\.jpg
+
+data/shaders/matting_load_2\.fs

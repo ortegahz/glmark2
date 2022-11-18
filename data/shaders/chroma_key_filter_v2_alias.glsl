@@ -1,5 +1,6 @@
 // #iUniform vec4x4 ViewProj;
-#iChannel0 "file:///home/manu/nfs/glmark2/data/textures/effect-2d.png"
+#iChannel0 "file:///home/manu/tmp/1.bmp"
+#iChannel1 "file:///home/manu/tmp/peaceful-wallpaper-1920x1080.jpg"
 
 #iUniform float opa = 1.0
 #iUniform float ctst = 1.0
